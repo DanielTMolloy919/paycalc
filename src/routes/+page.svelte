@@ -15,6 +15,7 @@
     // Constants
 
     let medicareLevy = 0.02;
+    let studentLoan = false;
 
     $: dailyMultiplier = hoursPerWeek / 5;
     $: weeklyMultiplier = hoursPerWeek;
@@ -84,6 +85,20 @@
     $: fortnightlyTotalTaxString = formatCurrency(fortnightlyTotalTax);
     $: monthlyTotalTaxString = formatCurrency(monthlyTotalTax);
     $: annualTotalTaxString = formatCurrency(annualTotalTax);
+
+    $: hourlyTakeHome = hourlyRate - hourlyTotalTax;
+    $: dailyTakeHome = dailyRate - dailyTotalTax;
+    $: weeklyTakeHome = weeklyRate - weeklyTotalTax;
+    $: fortnightlyTakeHome = fortnightlyRate - fortnightlyTotalTax;
+    $: monthlyTakeHome = monthlyRate - monthlyTotalTax;
+    $: annualTakeHome = annualRate - annualTotalTax;
+
+    $: hourlyTakeHomeString = formatCurrency(hourlyTakeHome);
+    $: dailyTakeHomeString = formatCurrency(dailyTakeHome);
+    $: weeklyTakeHomeString = formatCurrency(weeklyTakeHome);
+    $: fortnightlyTakeHomeString = formatCurrency(fortnightlyTakeHome);
+    $: monthlyTakeHomeString = formatCurrency(monthlyTakeHome);
+    $: annualTakeHomeString = formatCurrency(annualTakeHome);
 
     function calculateSuperString(rate: number, superRate: number): string {
         if (rate === 0) {
@@ -167,6 +182,9 @@
                         </div>
                     </div>
 
+                    <Label>Student Loan</Label>
+                    <Input type="switch" bind:checked={studentLoan} />
+
                 </div>
             </div>
 
@@ -183,7 +201,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr style="color: green">
+                <tr style="color: green; font-weight: bold">
                     <th scope="row">Total Income</th>
                     <td>{hourlyString}</td>
                     <td>{dailyString}</td>
@@ -192,14 +210,14 @@
                     <td>{monthlyString}</td>
                     <td>{annualString}</td>
                 </tr>
-                <tr style="color: cornflowerblue">
-                    <th scope="row">Super</th>
-                    <td>{hourlySuperString}</td>
-                    <td>{dailySuperString}</td>
-                    <td>{weeklySuperString}</td>
-                    <td>{fortnightlySuperString}</td>
-                    <td>{monthlySuperString}</td>
-                    <td>{annualSuperString}</td>
+                <tr style="color: yellowgreen">
+                    <th scope="row">Take Home</th>
+                    <td>{hourlyTakeHomeString}</td>
+                    <td>{dailyTakeHomeString}</td>
+                    <td>{weeklyTakeHomeString}</td>
+                    <td>{fortnightlyTakeHomeString}</td>
+                    <td>{monthlyTakeHomeString}</td>
+                    <td>{annualTakeHomeString}</td>
                 </tr>
                 <tr style="color: sandybrown">
                     <th scope="row">Total Tax</th>
@@ -227,6 +245,15 @@
                     <td>{fortnightlyMedicareLevyString}</td>
                     <td>{monthlyMedicareLevyString}</td>
                     <td>{annualMedicareLevyString}</td>
+                </tr>
+                <tr style="color: cornflowerblue">
+                    <th scope="row">Super</th>
+                    <td>{hourlySuperString}</td>
+                    <td>{dailySuperString}</td>
+                    <td>{weeklySuperString}</td>
+                    <td>{fortnightlySuperString}</td>
+                    <td>{monthlySuperString}</td>
+                    <td>{annualSuperString}</td>
                 </tr>
                 </tbody>
             </Table>
