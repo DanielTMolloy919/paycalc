@@ -12,26 +12,54 @@
 
     let superRate = 10.5;
 
+    $: dailyMultiplier = hoursPerWeek / 5;
+    $: weeklyMultiplier = hoursPerWeek;
+    $: fortnightlyMultiplier = hoursPerWeek * 2;
+    $: monthlyMultiplier = hoursPerWeek * (weeksPerYear / 12);
+    $: annualMultiplier = hoursPerWeek * weeksPerYear;
+
     $: hourlyRate = getHourlyRate(salary, payCycle, hoursPerWeek, weeksPerYear);
-    $: dailyRate = hourlyRate * (hoursPerWeek / 5);
-    $: weeklyRate = hourlyRate * hoursPerWeek;
-    $: fortnightlyRate = hourlyRate * hoursPerWeek * 2;
-    $: monthlyRate = hourlyRate * (hoursPerWeek * (weeksPerYear / 12));
-    $: annualRate = hourlyRate * (hoursPerWeek * weeksPerYear);
+    $: dailyRate = hourlyRate * dailyMultiplier;
+    $: weeklyRate = hourlyRate * weeklyMultiplier;
+    $: fortnightlyRate = hourlyRate * fortnightlyMultiplier;
+    $: monthlyRate = hourlyRate * monthlyMultiplier;
+    $: annualRate = hourlyRate * annualMultiplier;
 
     $: hourlyString = formatCurrency(hourlyRate);
-    $: dailyString = formatCurrency(dailyRate);
-    $: weeklyString = formatCurrency(weeklyRate);
-    $: fortnightlyString = formatCurrency(fortnightlyRate);
-    $: monthlyString = formatCurrency(monthlyRate);
-    $: annualString = formatCurrency(annualRate);
+    $: dailyString = formatCurrency(hourlyRate * dailyMultiplier);
+    $: weeklyString = formatCurrency(hourlyRate * weeklyMultiplier);
+    $: fortnightlyString = formatCurrency(hourlyRate * fortnightlyMultiplier);
+    $: monthlyString = formatCurrency(hourlyRate * monthlyMultiplier);
+    $: annualString = formatCurrency(hourlyRate * annualMultiplier);
 
-    $: hourlySuperString = hourlyRate !== 0 ? formatCurrency(hourlyRate * (superRate / 100)) : formatCurrency(0);
-    $: dailySuperString = hourlyRate !== 0 ? formatCurrency(dailyRate * (superRate / 100)) : formatCurrency(0);
-    $: weeklySuperString = hourlyRate !== 0 ? formatCurrency(weeklyRate * (superRate / 100)) : formatCurrency(0);
-    $: fortnightlySuperString = hourlyRate !== 0 ? formatCurrency(fortnightlyRate * (superRate / 100)) : formatCurrency(0);
-    $: monthlySuperString = hourlyRate !== 0 ? formatCurrency(monthlyRate * (superRate / 100)) : formatCurrency(0);
-    $: annualSuperString = hourlyRate !== 0 ? formatCurrency(annualRate * (superRate / 100)) : formatCurrency(0);
+    $: hourlySuperString = calculateSuperString(hourlyRate, superRate);
+    $: dailySuperString = calculateSuperString(dailyRate, superRate);
+    $: weeklySuperString = calculateSuperString(weeklyRate, superRate);
+    $: fortnightlySuperString = calculateSuperString(fortnightlyRate, superRate);
+    $: monthlySuperString = calculateSuperString(monthlyRate, superRate);
+    $: annualSuperString = calculateSuperString(annualRate, superRate);
+
+    $: annualIncomeTax = calculateIncomeTax(annualRate);
+    $: hourlyIncomeTax = annualIncomeTax / annualMultiplier;
+    $: dailyIncomeTax = hourlyIncomeTax * dailyMultiplier;
+    $: weeklyIncomeTax = hourlyIncomeTax * weeklyMultiplier;
+    $: fortnightlyIncomeTax = hourlyIncomeTax * fortnightlyMultiplier;
+    $: monthlyIncomeTax = hourlyIncomeTax * monthlyMultiplier;
+
+    $: annualIncomeTaxString = formatCurrency(annualIncomeTax);
+    $: hourlyIncomeTaxString = formatCurrency(hourlyIncomeTax);
+    $: dailyIncomeTaxString = formatCurrency(dailyIncomeTax);
+    $: weeklyIncomeTaxString = formatCurrency(weeklyIncomeTax);
+    $: fortnightlyIncomeTaxString = formatCurrency(fortnightlyIncomeTax);
+    $: monthlyIncomeTaxString = formatCurrency(monthlyIncomeTax);
+
+    function calculateSuperString(rate: number, superRate: number): string {
+        if (rate === 0) {
+            return formatCurrency(0);
+        } else {
+            return formatCurrency(rate * (superRate / 100));
+        }
+    }
 
     function getHourlyRate(pay: number, payCycle: PayCycle, workWeekHours: number, weeksPerYear: number): number {
         switch (payCycle) {
@@ -47,6 +75,20 @@
                 return pay / (workWeekHours / 5);
             case "Hourly":
                 return pay;
+        }
+    }
+
+    function calculateIncomeTax(salary: number): number {
+        if (salary <= 18200) {
+            return 0;
+        } else if (salary <= 45000) {
+            return (salary - 18200) * 0.19;
+        } else if (salary <= 120000) {
+            return 5092 + (salary - 45000) * 0.325;
+        } else if (salary <= 180000) {
+            return 29467 + (salary - 120000) * 0.37;
+        } else {
+            return 51667 + (salary - 180000) * 0.45;
         }
     }
 
@@ -87,7 +129,7 @@
                 <div class="col-md-4">
                     <Label>Super Rate</Label>
                     <div class="input-group">
-                        <Input class="form-control" type="number" bind:value={superRate} min="0" max="100"/>
+                        <Input class="form-control" type="number" bind:value={superRate} min="0" max="100" step="0.5"/>
                         <div class="input-group-append">
                             <span class="input-group-text">%</span>
                         </div>
@@ -126,6 +168,15 @@
                     <td>{fortnightlySuperString}</td>
                     <td>{monthlySuperString}</td>
                     <td>{annualSuperString}</td>
+                </tr>
+                <tr style="color: sandybrown">
+                    <th scope="row" style="font-weight: normal">Income Tax</th>
+                    <td>{hourlyIncomeTaxString}</td>
+                    <td>{dailyIncomeTaxString}</td>
+                    <td>{weeklyIncomeTaxString}</td>
+                    <td>{fortnightlyIncomeTaxString}</td>
+                    <td>{monthlyIncomeTaxString}</td>
+                    <td>{annualIncomeTaxString}</td>
                 </tr>
                 </tbody>
             </Table>
