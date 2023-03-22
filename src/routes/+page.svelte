@@ -12,14 +12,26 @@
 
     let superRate = 10.5;
 
-    $: hourlyRate = getHourlyRate(salary, payCycle, hoursPerWeek, weeksPerYear)
+    $: hourlyRate = getHourlyRate(salary, payCycle, hoursPerWeek, weeksPerYear);
+    $: dailyRate = hourlyRate * (hoursPerWeek / 5);
+    $: weeklyRate = hourlyRate * hoursPerWeek;
+    $: fortnightlyRate = hourlyRate * hoursPerWeek * 2;
+    $: monthlyRate = hourlyRate * (hoursPerWeek * (weeksPerYear / 12));
+    $: annualRate = hourlyRate * (hoursPerWeek * weeksPerYear);
 
     $: hourlyString = formatCurrency(hourlyRate);
-    $: dailyString = formatCurrency(hourlyRate * (hoursPerWeek / 5));
-    $: weeklyString = formatCurrency(hourlyRate * hoursPerWeek);
-    $: fornightlyString = formatCurrency(hourlyRate * hoursPerWeek * 2);
-    $: monthlyString = formatCurrency(hourlyRate * (hoursPerWeek * (weeksPerYear / 12)));
-    $: annualString = formatCurrency(hourlyRate * (hoursPerWeek * weeksPerYear));
+    $: dailyString = formatCurrency(dailyRate);
+    $: weeklyString = formatCurrency(weeklyRate);
+    $: fortnightlyString = formatCurrency(fortnightlyRate);
+    $: monthlyString = formatCurrency(monthlyRate);
+    $: annualString = formatCurrency(annualRate);
+
+    $: hourlySuperString = hourlyRate !== 0 ? formatCurrency(hourlyRate * (superRate / 100)) : formatCurrency(0);
+    $: dailySuperString = hourlyRate !== 0 ? formatCurrency(dailyRate * (superRate / 100)) : formatCurrency(0);
+    $: weeklySuperString = hourlyRate !== 0 ? formatCurrency(weeklyRate * (superRate / 100)) : formatCurrency(0);
+    $: fortnightlySuperString = hourlyRate !== 0 ? formatCurrency(fortnightlyRate * (superRate / 100)) : formatCurrency(0);
+    $: monthlySuperString = hourlyRate !== 0 ? formatCurrency(monthlyRate * (superRate / 100)) : formatCurrency(0);
+    $: annualSuperString = hourlyRate !== 0 ? formatCurrency(annualRate * (superRate / 100)) : formatCurrency(0);
 
     function getHourlyRate(pay: number, payCycle: PayCycle, workWeekHours: number, weeksPerYear: number): number {
         switch (payCycle) {
@@ -74,7 +86,13 @@
                 </div>
                 <div class="col-md-4">
                     <Label>Super Rate</Label>
-                    <Input bind:value={superRate}></Input>
+                    <div class="input-group">
+                        <Input class="form-control" type="number" bind:value={superRate} min="0" max="100"/>
+                        <div class="input-group-append">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -96,9 +114,18 @@
                     <td>{hourlyString}</td>
                     <td>{dailyString}</td>
                     <td>{weeklyString}</td>
-                    <td>{fornightlyString}</td>
+                    <td>{fortnightlyString}</td>
                     <td>{monthlyString}</td>
                     <td>{annualString}</td>
+                </tr>
+                <tr style="color: cornflowerblue">
+                    <th scope="row">Super</th>
+                    <td>{hourlySuperString}</td>
+                    <td>{dailySuperString}</td>
+                    <td>{weeklySuperString}</td>
+                    <td>{fortnightlySuperString}</td>
+                    <td>{monthlySuperString}</td>
+                    <td>{annualSuperString}</td>
                 </tr>
                 </tbody>
             </Table>
