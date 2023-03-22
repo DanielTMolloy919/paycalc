@@ -5,12 +5,16 @@
     type PayCycle = "Annually" | "Monthly" | "Fortnightly" | "Weekly" | "Daily" | "Hourly";
     const allPayCycleOptions: PayCycle[] = ["Annually", "Monthly", "Fortnightly", "Weekly", "Daily", "Hourly"];
 
+    // User Modifiable
     let salary = 60000;
     let payCycle: PayCycle = 'Annually';
     let hoursPerWeek = 40;
     let weeksPerYear = 52;
+    let superRatePercent = 10.5;
 
-    let superRate = 10.5;
+    // Constants
+
+    let medicareLevy = 0.02;
 
     $: dailyMultiplier = hoursPerWeek / 5;
     $: weeklyMultiplier = hoursPerWeek;
@@ -32,12 +36,12 @@
     $: monthlyString = formatCurrency(hourlyRate * monthlyMultiplier);
     $: annualString = formatCurrency(hourlyRate * annualMultiplier);
 
-    $: hourlySuperString = calculateSuperString(hourlyRate, superRate);
-    $: dailySuperString = calculateSuperString(dailyRate, superRate);
-    $: weeklySuperString = calculateSuperString(weeklyRate, superRate);
-    $: fortnightlySuperString = calculateSuperString(fortnightlyRate, superRate);
-    $: monthlySuperString = calculateSuperString(monthlyRate, superRate);
-    $: annualSuperString = calculateSuperString(annualRate, superRate);
+    $: hourlySuperString = calculateSuperString(hourlyRate, superRatePercent);
+    $: dailySuperString = calculateSuperString(dailyRate, superRatePercent);
+    $: weeklySuperString = calculateSuperString(weeklyRate, superRatePercent);
+    $: fortnightlySuperString = calculateSuperString(fortnightlyRate, superRatePercent);
+    $: monthlySuperString = calculateSuperString(monthlyRate, superRatePercent);
+    $: annualSuperString = calculateSuperString(annualRate, superRatePercent);
 
     $: annualIncomeTax = calculateIncomeTax(annualRate);
     $: hourlyIncomeTax = annualIncomeTax / annualMultiplier;
@@ -52,6 +56,34 @@
     $: weeklyIncomeTaxString = formatCurrency(weeklyIncomeTax);
     $: fortnightlyIncomeTaxString = formatCurrency(fortnightlyIncomeTax);
     $: monthlyIncomeTaxString = formatCurrency(monthlyIncomeTax);
+
+    $: hourlyMedicareLevy = hourlyRate * medicareLevy;
+    $: dailyMedicareLevy = dailyRate * medicareLevy;
+    $: weeklyMedicareLevy = weeklyRate * medicareLevy;
+    $: fortnightlyMedicareLevy = fortnightlyRate * medicareLevy;
+    $: monthlyMedicareLevy = monthlyRate * medicareLevy;
+    $: annualMedicareLevy = annualRate * medicareLevy;
+
+    $: hourlyMedicareLevyString = formatCurrency(hourlyMedicareLevy);
+    $: dailyMedicareLevyString = formatCurrency(dailyMedicareLevy);
+    $: weeklyMedicareLevyString = formatCurrency(weeklyMedicareLevy);
+    $: fortnightlyMedicareLevyString = formatCurrency(fortnightlyMedicareLevy);
+    $: monthlyMedicareLevyString = formatCurrency(monthlyMedicareLevy);
+    $: annualMedicareLevyString = formatCurrency(annualMedicareLevy);
+
+    $: hourlyTotalTax = hourlyMedicareLevy + hourlyIncomeTax;
+    $: dailyTotalTax = dailyMedicareLevy + dailyIncomeTax;
+    $: weeklyTotalTax = weeklyMedicareLevy + weeklyIncomeTax;
+    $: fortnightlyTotalTax = fortnightlyMedicareLevy + fortnightlyIncomeTax;
+    $: monthlyTotalTax = monthlyMedicareLevy + monthlyIncomeTax;
+    $: annualTotalTax = annualMedicareLevy + annualIncomeTax;
+
+    $: hourlyTotalTaxString = formatCurrency(hourlyTotalTax);
+    $: dailyTotalTaxString = formatCurrency(dailyTotalTax);
+    $: weeklyTotalTaxString = formatCurrency(weeklyTotalTax);
+    $: fortnightlyTotalTaxString = formatCurrency(fortnightlyTotalTax);
+    $: monthlyTotalTaxString = formatCurrency(monthlyTotalTax);
+    $: annualTotalTaxString = formatCurrency(annualTotalTax);
 
     function calculateSuperString(rate: number, superRate: number): string {
         if (rate === 0) {
@@ -129,7 +161,7 @@
                 <div class="col-md-4">
                     <Label>Super Rate</Label>
                     <div class="input-group">
-                        <Input class="form-control" type="number" bind:value={superRate} min="0" max="100" step="0.5"/>
+                        <Input class="form-control" type="number" bind:value={superRatePercent} min="0" max="100" step="0.5"/>
                         <div class="input-group-append">
                             <span class="input-group-text">%</span>
                         </div>
@@ -170,6 +202,15 @@
                     <td>{annualSuperString}</td>
                 </tr>
                 <tr style="color: sandybrown">
+                    <th scope="row">Total Tax</th>
+                    <td>{hourlyTotalTaxString}</td>
+                    <td>{dailyTotalTaxString}</td>
+                    <td>{weeklyTotalTaxString}</td>
+                    <td>{fortnightlyTotalTaxString}</td>
+                    <td>{monthlyTotalTaxString}</td>
+                    <td>{annualTotalTaxString}</td>
+                </tr>
+                <tr style="color: sandybrown">
                     <th scope="row" style="font-weight: normal">Income Tax</th>
                     <td>{hourlyIncomeTaxString}</td>
                     <td>{dailyIncomeTaxString}</td>
@@ -177,6 +218,15 @@
                     <td>{fortnightlyIncomeTaxString}</td>
                     <td>{monthlyIncomeTaxString}</td>
                     <td>{annualIncomeTaxString}</td>
+                </tr>
+                <tr style="color: sandybrown">
+                    <th scope="row" style="font-weight: normal">Medicare Levy</th>
+                    <td>{hourlyMedicareLevyString}</td>
+                    <td>{dailyMedicareLevyString}</td>
+                    <td>{weeklyMedicareLevyString}</td>
+                    <td>{fortnightlyMedicareLevyString}</td>
+                    <td>{monthlyMedicareLevyString}</td>
+                    <td>{annualMedicareLevyString}</td>
                 </tr>
                 </tbody>
             </Table>
