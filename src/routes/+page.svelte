@@ -2,6 +2,8 @@
     import {Input, Label, Table} from "sveltestrap";
     import CurrencyInput from '@canutin/svelte-currency-input';
 
+    import Doughnut from './Doughnut.svelte'
+
     type PayCycle = "Annually" | "Monthly" | "Fortnightly" | "Weekly" | "Daily" | "Hourly";
     const allPayCycleOptions: PayCycle[] = ["Annually", "Monthly", "Fortnightly", "Weekly", "Daily", "Hourly"];
 
@@ -37,12 +39,19 @@
     $: monthlyString = formatCurrency(hourlyRate * monthlyMultiplier);
     $: annualString = formatCurrency(hourlyRate * annualMultiplier);
 
-    $: hourlySuperString = calculateSuperString(hourlyRate, superRatePercent);
-    $: dailySuperString = calculateSuperString(dailyRate, superRatePercent);
-    $: weeklySuperString = calculateSuperString(weeklyRate, superRatePercent);
-    $: fortnightlySuperString = calculateSuperString(fortnightlyRate, superRatePercent);
-    $: monthlySuperString = calculateSuperString(monthlyRate, superRatePercent);
-    $: annualSuperString = calculateSuperString(annualRate, superRatePercent);
+    $: hourlySuper = calculateSuper(hourlyRate, superRatePercent);
+    $: dailySuper = hourlySuper * dailyMultiplier;
+    $: weeklySuper = hourlySuper * weeklyMultiplier;
+    $: fortnightlySuper = hourlySuper * fortnightlyMultiplier;
+    $: monthlySuper =  hourlySuper * monthlyMultiplier;
+    $: annualSuper =  hourlySuper * annualMultiplier;
+
+    $: hourlySuperString = formatCurrency(hourlySuper);
+    $: dailySuperString = formatCurrency(dailySuper);
+    $: weeklySuperString = formatCurrency(weeklySuper);
+    $: fortnightlySuperString = formatCurrency(fortnightlySuper);
+    $: monthlySuperString = formatCurrency(monthlySuper);
+    $: annualSuperString = formatCurrency(annualSuper);
 
     $: annualIncomeTax = calculateIncomeTax(annualRate);
     $: hourlyIncomeTax = annualIncomeTax / annualMultiplier;
@@ -100,11 +109,11 @@
     $: monthlyTakeHomeString = formatCurrency(monthlyTakeHome);
     $: annualTakeHomeString = formatCurrency(annualTakeHome);
 
-    function calculateSuperString(rate: number, superRate: number): string {
+    function calculateSuper(rate: number, superRate: number): number {
         if (rate === 0) {
-            return formatCurrency(0);
+            return 0;
         } else {
-            return formatCurrency(rate * (superRate / 100));
+            return rate * (superRate / 100);
         }
     }
 
@@ -149,23 +158,29 @@
 
 <svelte:head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
 </svelte:head>
 <body>
+<a class="github-fork-ribbon" href="https://github.com/DanielTMolloy919/paycalc" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
     <main>
         <div class="col-lg-8 pt-5 mx-auto">
             <h1>Australian Pay Calculator</h1>
 
             <div class="row pb-5">
                 <div class="col-md-4">
-                    <Label>Salary</Label>
-                    <CurrencyInput bind:value={salary} name="default" />
-
-                    <Label>Pay Cycle</Label>
-                    <Input type="select" bind:value={payCycle}>
-                        {#each allPayCycleOptions as option}
-                            <option value={option}>{option}</option>
-                        {/each}
-                    </Input>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <Label>Salary</Label>
+                            <CurrencyInput bind:value={salary} name="default" /></div>
+                        <div class="col-md-6">
+                            <Label>Pay Cycle</Label>
+                            <Input type="select" bind:value={payCycle}>
+                                {#each allPayCycleOptions as option}
+                                    <option value={option}>{option}</option>
+                                {/each}
+                            </Input>
+                        </div>
+                    </div>
 
                     <Label>Hours Worked Per Week</Label>
                     <Input bind:value={hoursPerWeek}></Input>
@@ -184,7 +199,9 @@
 
                     <Label>Student Loan</Label>
                     <Input type="switch" bind:checked={studentLoan} />
-
+                </div>
+                <div class="col-md-4">
+                    <Doughnut payData="{[annualTakeHome,annualTotalTax,annualSuper]}"/>
                 </div>
             </div>
 
@@ -260,3 +277,5 @@
         </div>
     </main>
 </body>
+
+<style>.github-fork-ribbon:before { background-color: darkblue; }</style>
